@@ -10,7 +10,7 @@ class OrderServiceSpec extends Specification with ThrownExpectations with Mockit
   "Specification for the Order Service"                               ^
                                                                       endp^
   "Setting an address on an order should"                             ^
-    "update an persist the order"                                     ! setAddressOnOrder^
+    "update and persist the order"                                    ! setAddressOnOrder^
     "error if the address is invalid"                                 ! setInvalidAddressOnOrder^
     "error if the order cannot be found"                              ! setAddressOnUnknownOrder^
     "error if the order is not in a modifiable state"                 ! setAddressOnUnmodifiableOrder^
