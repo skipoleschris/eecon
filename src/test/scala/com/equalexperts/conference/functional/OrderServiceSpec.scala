@@ -23,12 +23,14 @@ class OrderServiceSpec extends Specification with ThrownExpectations { def is =
   class context extends Scope {
 
     trait StubOrderRepository extends RepositoryModule {
-      def obtainOrder[S <: Status : Manifest, AddrReq <: Requirement](id: OrderId): Validation[ErrorState, Order[S, AddrReq]] = {
+      def obtainOrder[S <: Status : Manifest, AddrReq <: Requirement]
+            (id: OrderId): Validation[ErrorState, Order[S, AddrReq]] = {
         if ( implicitly[Manifest[S]].runtimeClass != classOf[Status#InProgress]) "Order is not InProgress".fail
         else Order[S, AddrReq](id).success
       }
 
-      def storeOrder[S <: Status : Manifest, AddrReq <: Requirement](order: Order[S, AddrReq]): Validation[ErrorState, Order[S, AddrReq]] = 
+      def storeOrder[S <: Status : Manifest, AddrReq <: Requirement]
+            (order: Order[S, AddrReq]): Validation[ErrorState, Order[S, AddrReq]] = 
         order.success
     }
 

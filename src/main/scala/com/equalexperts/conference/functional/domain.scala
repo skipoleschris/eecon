@@ -22,10 +22,13 @@ trait Requirement {
   type Met <: Requirement
 }
 
-case class Order[S <: Status, AddrReq <: Requirement](id: OrderId, address: Option[Address[Validated#Yes]] = None)
+case class Order[S <: Status, AddrReq <: Requirement]
+      (id: OrderId, address: Option[Address[Validated#Yes]] = None)
 
 object Order {
-  def addAddressToOrder(order: Order[Status#InProgress, _], address: Address[Validated#Yes]): Order[Status#InProgress, Requirement#Met] =
+  def addAddressToOrder(order: Order[Status#InProgress, _], 
+                        address: Address[Validated#Yes]): 
+        Order[Status#InProgress, Requirement#Met] =
     Order(order.id, Some(address))
 }
   
