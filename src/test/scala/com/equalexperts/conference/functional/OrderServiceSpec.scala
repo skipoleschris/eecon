@@ -16,32 +16,32 @@ class OrderServiceSpec extends Specification with ThrownExpectations { def is =
                                                                       end
 
   def setAddressOnOrder = new context {
-    val expectedOrder = Order[InProgress.type, Met.type]("1234", Some(validatedAddress))
+    val expectedOrder = Order[Status#InProgress, Requirement#Met]("1234", Some(validatedAddress))
     service.addAddressToOrder("1234", address) must_== expectedOrder.success
   }
 
   class context extends Scope {
 
     trait StubOrderRepository extends RepositoryModule {
-      def obtainOrder[S <: Status : Manifest, AddrReq <: Requirement : Manifest](id: OrderId): Validation[ErrorState, Order[S, AddrReq]] = {
-        if ( implicitly[Manifest[S]].runtimeClass != InProgress.getClass) "Order is not InProgress".fail
+      def obtainOrder[S <: Status : Manifest, AddrReq <: Requirement](id: OrderId): Validation[ErrorState, Order[S, AddrReq]] = {
+        if ( implicitly[Manifest[S]].runtimeClass != classOf[Status#InProgress]) "Order is not InProgress".fail
         else Order[S, AddrReq](id).success
       }
 
-      def storeOrder[S <: Status : Manifest, AddrReq <: Requirement : Manifest](order: Order[S, AddrReq]): Validation[ErrorState, Order[S, AddrReq]] = 
+      def storeOrder[S <: Status : Manifest, AddrReq <: Requirement](order: Order[S, AddrReq]): Validation[ErrorState, Order[S, AddrReq]] = 
         order.success
     }
 
     trait StubAddressValidator extends ValidationModule {
-      def validate(address: Address[_]): Validation[ErrorState, Address[Validated.type]] = 
-        address.copy[Validated.type]().success
+      def validate(address: Address[_]): Validation[ErrorState, Address[Validated#Yes]] = 
+        address.copy[Validated#Yes]().success
     }
 
     val orderServiceModule = new OrderServiceModule with StubOrderRepository with StubAddressValidator
     val service = orderServiceModule.OrderService
 
-    val address = Address[NotValidated.type]("1", "Foo Bar Lane", None, "Some Town", "ST1 1AA", "Testshire")
-    val validatedAddress = address.copy[Validated.type]()
+    val address = Address[Validated#No]("1", "Foo Bar Lane", None, "Some Town", "ST1 1AA", "Testshire")
+    val validatedAddress = address.copy[Validated#Yes]()
   }
 
 
