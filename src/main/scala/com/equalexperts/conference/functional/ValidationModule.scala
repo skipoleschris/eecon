@@ -1,8 +1,5 @@
 package com.equalexperts.conference.functional
 
-import scalaz._
-import Scalaz._
-
 trait ValidationModule {
-  def validate(address: Address[_]): Validation[ErrorState, Address[Validated#Yes]]
+  def validate(address: Address[_]): Either[ErrorState, Address[Validated#Yes]]
 }

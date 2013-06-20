@@ -4,9 +4,6 @@ import org.specs2.Specification
 import org.specs2.matcher.ThrownExpectations
 import org.specs2.specification.Scope
 
-import scalaz._
-import Scalaz._
-
 class OrderServiceSpec extends Specification with ThrownExpectations { def is = 
 
   "Specification for the Order Service"                               ^
@@ -17,26 +14,26 @@ class OrderServiceSpec extends Specification with ThrownExpectations { def is =
 
   def setAddressOnOrder = new context {
     val expectedOrder = Order[Status#InProgress, Requirement#Met, Persisted#Yes]("1234", Some(validatedAddress))
-    service.addAddressToOrder("1234", address) must_== expectedOrder.success
+    service.addAddressToOrder("1234", address) must_== Right(expectedOrder)
   }
 
   class context extends Scope {
 
     trait StubOrderRepository extends RepositoryModule {
       def obtainOrder[S <: Status : Manifest, AddrReq <: Requirement]
-            (id: OrderId): Validation[ErrorState, Order[S, AddrReq, Persisted#Yes]] = {
-        if ( implicitly[Manifest[S]].runtimeClass != classOf[Status#InProgress]) "Order is not InProgress".fail
-        else Order[S, AddrReq, Persisted#Yes](id).success
+            (id: OrderId): Either[ErrorState, Order[S, AddrReq, Persisted#Yes]] = {
+        if ( implicitly[Manifest[S]].runtimeClass != classOf[Status#InProgress]) Left("Order is not InProgress")
+        else Right(Order[S, AddrReq, Persisted#Yes](id))
       }
 
       def storeOrder[S <: Status : Manifest, AddrReq <: Requirement]
-            (order: Order[S, AddrReq, _]): Validation[ErrorState, Order[S, AddrReq, Persisted#Yes]] = 
-        order.copy[S, AddrReq, Persisted#Yes]().success
+            (order: Order[S, AddrReq, _]): Either[ErrorState, Order[S, AddrReq, Persisted#Yes]] = 
+        Right(order.copy[S, AddrReq, Persisted#Yes]())
     }
 
     trait StubAddressValidator extends ValidationModule {
-      def validate(address: Address[_]): Validation[ErrorState, Address[Validated#Yes]] = 
-        address.copy[Validated#Yes]().success
+      def validate(address: Address[_]): Either[ErrorState, Address[Validated#Yes]] = 
+        Right(address.copy[Validated#Yes]())
     }
 
     val orderServiceModule = new OrderServiceModule with StubOrderRepository with StubAddressValidator
