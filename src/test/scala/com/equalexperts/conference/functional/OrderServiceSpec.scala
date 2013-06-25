@@ -42,7 +42,5 @@ class OrderServiceSpec extends Specification with ThrownExpectations { def is =
     val address = Address[Validated#No]("1", "Foo Bar Lane", None, "Some Town", "ST1 1AA", "Testshire")
     val validatedAddress = address.copy[Validated#Yes]()
   }
-
-
 }
 
